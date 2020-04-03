@@ -8,6 +8,8 @@ const colors = require('colors')
 const connetDB = require('./db')
 connetDB()
 
+app.use(express.json())
+
 // require Routes
 const bootcamps = require('./routes/bootcamps')
 
@@ -18,6 +20,6 @@ const server = app.listen(process.env.PORT, console.log("Server Live".blue))
 
 // Unhandled Promises
 process.on("unhandledRejection", err => {
-    console.log(`Promise rejection error: ${err}`.red)
+    console.log(`Promise rejection error: ${err.message}`.red)
     server.close(() => process.exit(1))
 })
