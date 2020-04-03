@@ -1,7 +1,13 @@
 require('dotenv').config()
 
+// express
 const express = require('express')
 const app = express()
+
+// middlewares
+const errorHandler = require('./middleware/error')
+
+// additionals
 const colors = require('colors')
 
 // Connecting to Database
@@ -15,6 +21,9 @@ const bootcamps = require('./routes/bootcamps')
 
 // use Routes
 app.use('/api/bootcamps', bootcamps)
+
+// errorHandler 
+app.use(errorHandler)
 
 const server = app.listen(process.env.PORT, console.log("Server Live".blue))
 
