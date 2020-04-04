@@ -1,7 +1,7 @@
 const express = require('express')
 const router = express.Router()
 
-// require route handlers
+// Require route handlers
 const {
     getBootcamps,
     createBootcamp,
@@ -10,6 +10,13 @@ const {
     deleteBootcamp
 } = require('../handlers/bootcamps')
 
+// Resourse Routes
+const courseRouter = require('./courses')
+
+// Re-routing to Resourse
+router.use('/:bootcampId/courses', courseRouter)
+
+// Main routes
 router.route('/')
 .get(getBootcamps)
 .post(createBootcamp)
