@@ -79,6 +79,27 @@ const bootcampSchema = new mongoose.Schema({
         type: Date,
         default: Date.now
     }
+}, {
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true }
 })
 
+// Reverse population of courses
+bootcampSchema.virtual('courses', {
+    ref: 'Course',
+    localField: '_id',
+    foreignField: 'bootcamp',
+    justOne: false
+})
+
+// Cascade delete:
+// for deleting all courses if the linked bootcamp is deleted
+bootcampSchema.pre('remove', async function(next) {
+    await this.model('Course').deleteMany({ bootcamp: this._id })
+    next()
+})
+
+
 module.exports = mongoose.model('Bootcamp', bootcampSchema)
+
+// cascaded delete uses mongoose middleware utils i.e bootcamp.pre

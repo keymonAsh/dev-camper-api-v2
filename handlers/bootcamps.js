@@ -15,7 +15,7 @@ exports.getBootcamps = asyncHandler( async (req, res, next) => {
     // queryStr = queryStr.replace(/\b(gt|gte|lt|lte|in)\b/g, match => `$${match}`)
 
     // ### setting up the query
-    let query = Bootcamp.find(reqQuery)
+    let query = Bootcamp.find(reqQuery).populate('courses')
 
     // Select: fot displaying certain fiels
     if(req.query.select) {
@@ -33,7 +33,7 @@ exports.getBootcamps = asyncHandler( async (req, res, next) => {
 
     // Pagination
     const page = parseInt(req.query.page, 10) || 1 // page number
-    const limit = parseInt(req.query.limit) || 2 // bootcamps per page
+    const limit = parseInt(req.query.limit) || 10 // bootcamps per page
     const startindex = (page - 1) * limit
     const endindex = page * limit
     query = query.skip(startindex).limit(limit)
@@ -99,11 +99,13 @@ exports.updateBootcamp = asyncHandler( async (req, res, next) => {
 // route: DELETE /api/bootcamps/:id
 // access: Private
 exports.deleteBootcamp = asyncHandler( async (req, res, next) => {
-    const bootcamp = await Bootcamp.findByIdAndDelete(req.params.id)
+    const bootcamp = await Bootcamp.findById(req.params.id)
     if(!bootcamp) {
         return next(new ErrorResponse(`Bootcamp not found with id: ${req.params.id}`, 404))
     }
     
+    bootcamp.remove()
+
     res.status(200).json({success: true})
 })
 
@@ -111,3 +113,8 @@ exports.deleteBootcamp = asyncHandler( async (req, res, next) => {
 // if(!bootcamp) {new ErrorResopnse}
 // is a custom object with err.message and err.statusCode only
 // while the catch err is an Error class object 
+
+// ## cascaded delete function
+// in delete route findByIdAndDelete is upadate to just findById
+// and replace to .remove()
+// in order to trigger the cascaded middleware
