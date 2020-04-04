@@ -6,7 +6,34 @@ const Bootcamp = require('../models/Bootcamp')
 // route: GET /api/bootcamps
 // access: Public
 exports.getBootcamps = asyncHandler( async (req, res, next) => {
-    const bootcamps = await Bootcamp.find()
+    const reqQuery = { ...req.query }
+    const removeFields = ['select', 'sort']
+    removeFields.forEach(val => delete reqQuery[val])
+
+    // ### Supposed to do the operaetor part but an alternative is passing $ directly to the query itself
+    // let queryStr = JSON.stringify(req.query)
+    // queryStr = queryStr.replace(/\b(gt|gte|lt|lte|in)\b/g, match => `$${match}`)
+
+    // ### setting up the query
+    let query = Bootcamp.find(reqQuery)
+
+    // Select: fot displaying certain fiels
+    if(req.query.select) {
+        const fields = req.query.select.split(',').join(' ')
+        query = query.select(fields)
+    }
+
+    // Sort
+    if(req.query.sort) {
+        const sortBy = req.query.sort
+        query = query.sort(sortBy)
+    } else {
+        query = query.sort('-createdAt')
+    }
+
+    // EXECUTION
+    const bootcamps = await query
+
     res.status(200).json({success: true, count: bootcamps.length, data: bootcamps})
 })
 
@@ -15,6 +42,7 @@ exports.getBootcamps = asyncHandler( async (req, res, next) => {
 // access: Private
 exports.createBootcamp = asyncHandler( async (req, res, next) => {
     const bootcamp = await Bootcamp.create(req.body)
+
     res.status(201).json({ success: true, data: bootcamp })
 })
 
@@ -26,6 +54,7 @@ exports.getBootcamp = asyncHandler( async (req, res, next) => {
     if(!bootcamp) {
         return next(new ErrorResponse(`Bootcamp not found with id: ${req.params.id}`, 404))
     }
+
     res.status(200).json({success: true, data: bootcamp})
 })
 
@@ -37,6 +66,7 @@ exports.updateBootcamp = asyncHandler( async (req, res, next) => {
     if(!bootcamp) {
         return next(new ErrorResponse(`Bootcamp not found with id: ${req.params.id}`, 404))
     } 
+
     res.status(200).json({success: true, data: bootcamp})
 })
 
@@ -48,6 +78,7 @@ exports.deleteBootcamp = asyncHandler( async (req, res, next) => {
     if(!bootcamp) {
         return next(new ErrorResponse(`Bootcamp not found with id: ${req.params.id}`, 404))
     }
+    
     res.status(200).json({success: true})
 })
 
