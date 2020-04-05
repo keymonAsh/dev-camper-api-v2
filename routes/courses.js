@@ -10,9 +10,13 @@ const {
     deleteCourse
 } = require('../handlers/courses')
 
+// Advanced Results setup
+const Course = require('../models/Course')
+const advancedResults = require('../middleware/advancedResults')
+
 // Main routes
 router.route('/')
-.get(getCourses)
+.get(advancedResults(Course, { path: 'bootcamp', select: 'name description' }), getCourses)
 .post(createCourse)
 
 router.route('/:id')
