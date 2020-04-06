@@ -24,3 +24,14 @@ exports.protect = asyncHandler(async (req, res, next) => {
         return next(new ErrorResponse("Not autherized to access this route / wrong token", 401))
     }
 })
+
+exports.authorize = (...roles) => {
+    return (req, res, next) => {
+        if(!roles.includes(req.user.role)) {
+            return next(new ErrorResponse(`${req.user.role} is not authhorized to access this route`, 403))
+        }
+        next()
+    }
+}
+
+// doubt: authorize is being called multiple times when server is stated
