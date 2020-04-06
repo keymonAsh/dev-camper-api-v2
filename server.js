@@ -6,6 +6,7 @@ const app = express()
 
 // middlewares
 const errorHandler = require('./middleware/error')
+const cookieParser = require('cookie-parser')
 
 // additionals
 const colors = require('colors')
@@ -26,8 +27,9 @@ app.use('/api/bootcamps', bootcamps)
 app.use('/api/courses', courses)
 app.use('/api', auth)
 
-// errorHandler 
+// middlewares 
 app.use(errorHandler)
+app.use(cookieParser)
 
 // starting server
 const server = app.listen(process.env.PORT, console.log("Server Live".blue))
@@ -38,4 +40,4 @@ process.on("unhandledRejection", err => {
     server.close(() => process.exit(1))
 })
 
-// note: errorHandler should be placed after the routes in order to work
+// note: all middleware should be after routes
