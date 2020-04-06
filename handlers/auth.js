@@ -38,7 +38,7 @@ exports.login = asyncHandler(async (req, res, next) => {
     sendTokenResponse(user, 200, res)
 }) 
 
-//creating token and sending response with cookie
+// creating token and sending response with cookie
 const sendTokenResponse = (user, statusCode, res) => {
     const token = user.getSignedJwtToken()
     const options = {
@@ -49,3 +49,11 @@ const sendTokenResponse = (user, statusCode, res) => {
     .cookie('token', token, options)
     .json({ success: true, token })
 }
+
+// desc: Get loggedIn user
+// route: POST /api/me
+// access: private
+exports.getMe = asyncHandler(async (req, res, next) => {
+    const user = await User.findById(req.user.id)
+    res.status(200).json({ success: true, data: user })
+})

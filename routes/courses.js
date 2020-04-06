@@ -14,15 +14,18 @@ const {
 const Course = require('../models/Course')
 const advancedResults = require('../middleware/advancedResults')
 
+// auth middleware
+const { protect } = require('../middleware/auth')
+
 // Main routes
 router.route('/')
 .get(advancedResults(Course, { path: 'bootcamp', select: 'name description' }), getCourses)
-.post(createCourse)
+.post(protect, createCourse)
 
 router.route('/:id')
 .get(getCourse)
-.put(updateCourse)
-.delete(deleteCourse)
+.put(protect, updateCourse)
+.delete(protect, deleteCourse)
 
 module.exports = router
 

@@ -20,14 +20,17 @@ const courseRouter = require('./courses')
 // Re-routing to Resourse
 router.use('/:bootcampId/courses', courseRouter)
 
+// auth middleware
+const { protect } = require('../middleware/auth')
+
 // Main routes
 router.route('/')
 .get(advancedResults(Bootcamp, 'courses'), getBootcamps)
-.post(createBootcamp)
+.post(protect, createBootcamp)
 
 router.route('/:id')
 .get(getBootcamp)
-.put(updateBootcamp)
-.delete(deleteBootcamp)
+.put(protect, updateBootcamp)
+.delete(protect, deleteBootcamp)
 
 module.exports = router
