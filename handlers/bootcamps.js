@@ -14,6 +14,16 @@ exports.getBootcamps = asyncHandler( async (req, res, next) => {
 // route: POST /api/bootcamps
 // access: Private
 exports.createBootcamp = asyncHandler( async (req, res, next) => {
+    // associate user id
+    req.body.user = req.user.id
+
+    // check for published bootcamp
+    const publishedBootcamp = await Bootcamp.findOne({ user: req.user.id })
+    // check if user is admin or not
+    if(publishedBootcamp && req.user.role != 'admin') {
+        return next(new ErrorResponse(`user with id ${req.user.id} already published a bootcamp`, 400))
+    }
+
     const bootcamp = await Bootcamp.create(req.body)
 
     res.status(201).json({ success: true, data: bootcamp })
@@ -35,10 +45,17 @@ exports.getBootcamp = asyncHandler( async (req, res, next) => {
 // route: PUT /api/bootcamps/:id
 // access: Private
 exports.updateBootcamp = asyncHandler( async (req, res, next) => {
-    const bootcamp = await Bootcamp.findByIdAndUpdate(req.params.id, req.body, {new: true, runValidators: true})
+    let bootcamp = await Bootcamp.findById(req.params.id)
     if(!bootcamp) {
         return next(new ErrorResponse(`Bootcamp not found with id: ${req.params.id}`, 404))
     } 
+
+    // ckecking owner
+    if(bootcamp.user.toString() !== req.user.id && req.user.role !== 'admin') {
+        return next(new ErrorResponse(`User ${req.params.id} is not authoriized to update this bootcamp`, 401))
+    }
+
+    bootcamp = Bootcamp.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true })
 
     res.status(200).json({success: true, data: bootcamp})
 })
@@ -52,6 +69,11 @@ exports.deleteBootcamp = asyncHandler( async (req, res, next) => {
         return next(new ErrorResponse(`Bootcamp not found with id: ${req.params.id}`, 404))
     }
     
+    // ckecking owner
+    if(bootcamp.user.toString() !== req.user.id && req.user.role !== 'admin') {
+        return next(new ErrorResponse(`User ${req.params.id} is not authoriized to delete this bootcamp`, 401))
+    }
+
     bootcamp.remove()
 
     res.status(200).json({success: true})

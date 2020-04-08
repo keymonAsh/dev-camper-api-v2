@@ -20,13 +20,18 @@ exports.getCourses = asyncHandler(async (req, res, next) => {
 // route: POST /api/bootcamp/:bootcampId/courses
 // access: Private
 exports.createCourse = asyncHandler(async (req, res, next) => {
-    // adding the bootcampId to the requseted body data
+    // adding the bootcampId to the requseted body data and user aid also
     req.body.bootcamp = req.params.bootcampId
-
+    req.body.user = req.user.id
     // finding the bootcamp to which course is adreteated cded 
     const bootcamp = await Bootcamp.findById(req.params.bootcampId)
     if(!bootcamp) {
-        next(new ErrorResponse(`No bootcamp with id: ${req.params.bootcampId}`, 404))
+        return next(new ErrorResponse(`No bootcamp with id: ${req.params.bootcampId}`, 404))
+    }
+
+    // checking owner
+    if(bootcamp.user.toString() !== req.user.id && req.user.role !== 'admin') {
+        return next(new ErrorResponse(`User ${req.user.id} is not authoriized to create course`, 401))
     }
 
     const course = await Course.create(req.body)
@@ -42,7 +47,7 @@ exports.getCourse = asyncHandler(async (req, res, next) => {
    const course = await Course.findById(req.params.id).populate({ path: 'bootcamp', select: 'name description' })
 
    if(!course) {
-       next(new ErrorResponse(`No courses with id: ${req.params.id}`), 404)
+       return next(new ErrorResponse(`No courses with id: ${req.params.id}`), 404)
    }
 
    res.status(200).json({ success: true, data: course })
@@ -55,7 +60,12 @@ exports.updateCourse = asyncHandler(async (req, res, next) => {
     let course = await Course.findById(req.params.id)
 
     if(!course) {
-        next(new ErrorResponse(`No courses with id: ${req.params.id}`), 404)
+       return next(new ErrorResponse(`No courses with id: ${req.params.id}`), 404)
+    }
+
+     // checking owner
+     if(course.user.toString() !== req.user.id && req.user.role !== 'admin') {
+        return next(new ErrorResponse(`User ${req.user.id} is not authoriized to update course`, 401))
     }
 
     course = await Course.findByIdAndUpdate(req.params.id, req.body, {
@@ -73,7 +83,12 @@ exports.deleteCourse = asyncHandler(async (req, res, next) => {
     const course = await Course.findById(req.params.id)
 
     if(!course) {
-        next(new ErrorResponse(`No courses with id: ${req.params.id}`), 404)
+        return next(new ErrorResponse(`No courses with id: ${req.params.id}`), 404)
+    }
+
+     // checking owner
+     if(course.user.toString() !== req.user.id && req.user.role !== 'admin') {
+        return next(new ErrorResponse(`User ${req.user.id} is not authoriized to delete course`, 401))
     }
 
     await course.remove()
