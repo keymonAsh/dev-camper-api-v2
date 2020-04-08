@@ -38,6 +38,32 @@ exports.login = asyncHandler(async (req, res, next) => {
     sendTokenResponse(user, 200, res)
 }) 
 
+// desc: Get loggedIn user
+// route: POST /api/me
+// access: private
+exports.getMe = asyncHandler(async (req, res, next) => {
+    const user = await User.findById(req.user.id)
+    res.status(200).json({ success: true, data: user })
+})
+
+// desc: Forgot passwaord
+// route: POST /api/forgotpassword
+// access: public
+exports.forgotPassword = asyncHandler(async (req, res, next) => {
+    const user = await User.findOne({ email: req.body.email })
+
+    if(!user) {
+        return next(new ErrorResponse(`No user with ${req.body.email}`, 404))
+    }
+
+    // reset token 
+    const resetToken = user.getResetPasswordToken()
+    
+    await user.save({ validateBeforeSave: false })
+
+    res.status(200).json({ success: true, data: user })
+})
+
 // creating token and sending response with cookie
 const sendTokenResponse = (user, statusCode, res) => {
     const token = user.getSignedJwtToken()
@@ -49,11 +75,3 @@ const sendTokenResponse = (user, statusCode, res) => {
     .cookie('token', token, options)
     .json({ success: true, token })
 }
-
-// desc: Get loggedIn user
-// route: POST /api/me
-// access: private
-exports.getMe = asyncHandler(async (req, res, next) => {
-    const user = await User.findById(req.user.id)
-    res.status(200).json({ success: true, data: user })
-})
