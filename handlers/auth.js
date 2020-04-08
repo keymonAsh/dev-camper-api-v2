@@ -46,6 +46,35 @@ exports.getMe = asyncHandler(async (req, res, next) => {
     res.status(200).json({ success: true, data: user })
 })
 
+// desc: Update loggedIn user
+// route: PUT /api/updateUser DETAILS
+// access: private
+exports.updateUser = asyncHandler(async (req, res, next) => {
+    const fields = { name: req.body.name, email: req.body.email }
+
+    const user = await User.findByIdAndUpdate(req.user.id, fields, { new: true, runValidators: true })
+    res.status(200).json({ success: true, data: user })
+})
+
+// desc: Update loggedIn user PASSWORD
+// route: PUT /api/updatepassword
+// access: private
+exports.updatePassword = asyncHandler(async (req, res, next) => {
+    const user = await User.findById(req.user.id).select('+password')
+
+    // chech current pass
+    if(!(await user.matchPassword(req.body.currentPassword))) {
+        return next(new ErrorResponse('Password is incorrect', 401))
+    }
+
+    // setting new password
+    user.password = req.body.newPassword
+
+    await user.save()
+
+    sendTokenResponse(user, 200, res)
+})
+
 // desc: Forgot passwaord
 // route: POST /api/forgotpassword
 // access: public

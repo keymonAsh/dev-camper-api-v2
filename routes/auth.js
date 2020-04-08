@@ -2,7 +2,7 @@ const express = require('express')
 const router = express.Router()
 
 // Require route handlers
-const { register, login, getMe, forgotPassword } = require('../handlers/auth')
+const { register, login, getMe, forgotPassword, updateUser, updatePassword } = require('../handlers/auth')
 
 // auth middleware
 const { protect } = require('../middleware/auth')
@@ -11,6 +11,10 @@ const { protect } = require('../middleware/auth')
 router.post('/register', register)
 router.post('/login', login)
 router.get('/me', protect, getMe)
-router.post('/forgotpassword', forgotPassword)
+router.put('/updateuser', protect, updateUser)
+router.put('/updatepassword', protect, updatePassword)
+// router.post('/forgotpassword', forgotPassword)
 
 module.exports = router
+
+// forgotPassword route is work under progress
