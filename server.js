@@ -21,11 +21,13 @@ app.use(express.json())
 const bootcamps = require('./routes/bootcamps')
 const courses = require('./routes/courses')
 const auth = require('./routes/auth')
+const users = require('./routes/users')
 
 // use Routes
 app.use('/api/bootcamps', bootcamps)
 app.use('/api/courses', courses)
 app.use('/api', auth)
+app.use('/api/auth/users', users)
 
 // middlewares 
 app.use(errorHandler)
