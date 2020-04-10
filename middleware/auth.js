@@ -35,3 +35,4 @@ exports.authorize = (...roles) => {
 }
 
 // doubt: authorize is being called multiple times when server is stated
+// cookies not working
