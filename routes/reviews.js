@@ -5,7 +5,9 @@ const router = express.Router({ mergeParams: true })
 const {
     getReviews,
     getReview,
-    createReview
+    createReview,
+    updateReview,
+    deleteReview
 } = require('../handlers/reviews')
 
 // Advanced Results setup
@@ -22,7 +24,10 @@ router.route('/')
 
 router.route('/:id')
 .get(getReview)
+.put(protect, authorize('user', 'admin'), updateReview)
+.delete(protect, authorize('user', 'admin'), deleteReview)
 
 module.exports = router
 
 // mergeParams is used to re-route from the resourse
+// when I update the Review average rating is not changing

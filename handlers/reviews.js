@@ -31,7 +31,7 @@ exports.getReview = asyncHandler(async (req, res, next) => {
 
 // desc: Create Review
 // route: POST /api/courses AND /api/bootcamps/:bootcampId/reviews
-// access: Public
+// access: Private
 exports.createReview = asyncHandler(async (req, res, next) => {
     req.body.bootcamp = req.params.bootcampId
     req.body.user = req.user.id
@@ -46,3 +46,42 @@ exports.createReview = asyncHandler(async (req, res, next) => {
     res.status(201).json({ success: true, data: review })
 })
 
+// desc: Create Review
+// route: PUT /api/reviews/:id
+// access: Private
+exports.updateReview = asyncHandler(async (req, res, next) => {
+    let review = await Review.findById(req.params.id)
+
+    if(!review) {
+        return next(new ErrorResponse(`NO Reviews with Id og ${req.params.bootcampId}`, 404))
+    }
+
+    // Review ownership
+    if(review.user.toString() !== req.user.id && req.user.role !== "admin") {
+        next(new ErrorResponse("Not autheorized to update review", 404))
+    }
+
+    review = await Review.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true })
+
+    res.status(201).json({ success: true, data: review })
+})
+
+// desc: delete Review
+// route: DELETE /api/reviews/:id
+// access: Private
+exports.deleteReview = asyncHandler(async (req, res, next) => {
+    let review = await Review.findById(req.params.id)
+
+    if(!review) {
+        return next(new ErrorResponse(`NO Reviews with Id og ${req.params.bootcampId}`, 404))
+    }
+
+    // Review ownership
+    if(review.user.toString() !== req.user.id && req.user.role !== "admin") {
+        next(new ErrorResponse("Not autheorized to update review", 404))
+    }
+
+    await review.remove()
+
+    res.status(201).json({ success: true })
+})
