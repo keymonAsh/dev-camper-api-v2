@@ -22,12 +22,14 @@ const bootcamps = require('./routes/bootcamps')
 const courses = require('./routes/courses')
 const auth = require('./routes/auth')
 const users = require('./routes/users')
+const reviews = require('./routes/reviews')
 
 // use Routes
 app.use('/api/bootcamps', bootcamps)
 app.use('/api/courses', courses)
 app.use('/api', auth)
 app.use('/api/auth/users', users)
+app.use('/api/reviews', reviews)
 
 // middlewares 
 app.use(errorHandler)

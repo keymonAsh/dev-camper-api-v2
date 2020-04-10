@@ -16,9 +16,11 @@ const advancedResults = require('../middleware/advancedResults')
 
 // Resourse Routes
 const courseRouter = require('./courses')
+const reviewRouter = require('.//reviews')
 
 // Re-routing to Resourse
 router.use('/:bootcampId/courses', courseRouter)
+router.use('/:bootcampId/reviews', reviewRouter)
 
 // auth middleware
 const { protect, authorize } = require('../middleware/auth')
